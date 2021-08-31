@@ -114,4 +114,32 @@ drive.mount('/content/gdrive')
 !./darknet detector train /app/cat_recognize/picture/out2yolo/obj.data /app/cat_recognize/picture/cats_alter/cfg/yolov4_train1.cfg yolov4.conv.137 -dont_show
 ```
 ## 成果辨識
+進行辨識前，需要先將cfg函數修改至辨識用的數值，為了方便，複製cfg檔案進行修改。
+```ini
+%cp /app/cat_recognize/picture/cats_alter/cfg/yolov4_train1.cfg /app/cat_recognize/picture/cats_alter/cfg/yolov4_test1.cfg
+# 修改cfg檔以偵測
+%cd /app/cat_recognize/picture/cats_alter/cfg
+!sed -i "1 s/64/1/g" yolov4_test1.cfg
+!sed -i "2 s/64/1/g" yolov4_test1.cfg
+!sed -i "4 s/Training/Testing/g" yolov4_test1.cfg
+```
+修改完後便可以使用訓練結果進行辨識。
+```ini
+#單張圖片檢測
+import cv2
+from google.colab.patches import cv2_imshow
+
+def img_show(img_name):
+  img = cv2.imread(img_name, cv2.IMREAD_UNCHANGED)
+  cv2_imshow(img)
+
+%cd /content/darknet/
+!./darknet detector test /app/cat_recognize/picture/out2yolo/obj.data /app/cat_recognize/picture/cats_alter/cfg/yolov4_test1.cfg /content/gdrive/MyDrive/cat_recognize/picture/out2yolo/backup/yolov4_train1_last.weights /app/cat_recognize/picture/cats/pexels-meruyert-gonullu-7317607.jpg > /content/gdrive/MyDrive/cat_recognize/picture/result/result.txt -dont_show
+
+img_show('predictions.jpg')
+```
+得到的成果便如下
+
+![下載](https://user-images.githubusercontent.com/64704410/131528212-b17881e0-0700-4934-8441-8b0bf71484ae.jpg)
+
 ## 參考資料
