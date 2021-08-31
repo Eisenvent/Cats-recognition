@@ -1,7 +1,7 @@
 # 貓的辨識
 
 ## 環境建構
-由於個人電腦執行Yolo會需要很長的時間(GTX650)，所以使用google colab。
+由於個人電腦執行Yolo會需要很長的時間(GTX650)，所以使用**google colab**。
 
 為了在colab上使用個人的雲端硬碟，需先連上雲端，並建立短捷徑。
 
@@ -11,7 +11,7 @@
 ```
 from google.colab import drive
 
-drive.mount('/content/gdrive', force_remount=True)
+drive.mount('/content/gdrive')
 !ln -fs /content/gdrive/MyDrive /app
 ```
 
@@ -55,7 +55,7 @@ cv2_imshow(img)
 ```
 ![image](https://user-images.githubusercontent.com/64704410/131439805-76bcf2ec-132c-4ad1-b7ed-c32c3a5215c0.png)
 
-沒有問題的話，變準備將安裝好的環境製作成壓縮檔，以便往後可以快速利用。
+沒有問題的話，將安裝好的環境製作成壓縮檔，以便往後可以快速利用。
 ```ini
 %cd /content/
 !zip -r darknet.zip darknet
@@ -63,13 +63,13 @@ cv2_imshow(img)
 ```
 
 ## 環境下載
-在有yolo環境壓縮檔的情況下，可以直接連到雲端硬碟下載壓縮檔來使用yolo。
+在有yolo環境壓縮檔的情況下，可以**直接**連到雲端硬碟下載壓縮檔來使用yolo。
 ```ini
 from google.colab import drive
 import os
 
 # 製作捷徑
-drive.mount('/content/gdrive', force_remount=True)
+drive.mount('/content/gdrive')
 !ln -fs /content/gdrive/MyDrive /app
 
 #複製darknet壓縮檔
@@ -81,5 +81,37 @@ drive.mount('/content/gdrive', force_remount=True)
 ```
 
 ## 模型訓練
+將權重檔案複製到訓練資料夾cat_recognize下，並修改cfg檔案。
 
+由於只有**1**個類別要辨識，所以將參數修改如下。
+```ini
+# 將cfg檔複製到訓練資料夾下
+%cp /content/darknet/cfg/yolov4.cfg /app/cat_recognize/picture/cats_alter/cfg/yolov4_train1.cfg
+
+# 修改cfg檔以符合訓練資料
+%cd /app/cat_recognize/picture/cats_alter/cfg
+!sed -i "s/width=608/width=416/g" yolov4_train1.cfg
+!sed -i "s/height=608/height=416/g" yolov4_train1.cfg
+!sed -i "s/subdivisions=8/subdivisions=64/g" yolov4_train1.cfg
+!sed -i "s/max_batches = 500500/max_batches = 2000/g" yolov4_train1.cfg #batches = classes*2000
+!sed -i "s/steps=400000,450000/steps=1600,1800/g" yolov4_train1.cfg
+!sed -i "968c classes=1" yolov4_train1.cfg 
+!sed -i "1056c classes=1" yolov4_train1.cfg 
+!sed -i "1144c classes=1" yolov4_train1.cfg
+#filters = 3*(classes+5)
+!sed -i "961c filters=18" yolov4_train1.cfg
+!sed -i "1049c filters=18" yolov4_train1.cfg
+!sed -i "1137c filters=18" yolov4_train1.cfg
+```
+修改完畢，記得建立資料夾以儲存訓練產生的權重，之後就可以開始進行訓練。
+```ini
+#建立儲存訓練權重的資料夾
+!mkdir /app/cat_recognize/picture/out2yolo/backup
+```
+在colab上執行yolo會有個*錯誤*：yolo在偵測完或是訓練完後會展示結果，但在colab上會呈現錯誤，因此需要在程式後加上 **-dont_show**。
+```ini
+%cd /content/darknet/
+!./darknet detector train /app/cat_recognize/picture/out2yolo/obj.data /app/cat_recognize/picture/cats_alter/cfg/yolov4_train1.cfg yolov4.conv.137 -dont_show
+```
+## 成果辨識
 ## 參考資料
