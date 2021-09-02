@@ -144,5 +144,7 @@ img_show('predictions.jpg')
 
 ## 參考資料
 [YOLOv4](https://github.com/AlexeyAB/darknet)
+
 [在 Google Colab 上創建 YOLOv4 的運行環境](https://jason-chen-1992.weebly.com/home/-google-colab-yolov4)
+
 [YOLOv4 訓練教學](https://medium.com/ching-i/yolo-c49f70241aa7)
